@@ -17,7 +17,7 @@ public class Decorator {
     // The location of the Sprite on the card
     public Vector3 loc;
     // Whether to flip the Sprite vertically
-    public bool isFlipped;
+    public bool flip;
     // The scale of the sprite
     public float scale = 1f;
 }
