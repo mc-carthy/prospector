@@ -20,6 +20,15 @@ public class Card : MonoBehaviour {
     // Parsed from DeckXML.xml
     public CardDefinition def;
 
+    public bool faceUp {
+        get {
+            return !back.activeSelf;
+        }
+        set {
+            back.SetActive (!value);
+        }
+    }
+
 }
 
 [System.SerializableAttribute]
