@@ -259,9 +259,72 @@ public class Deck : MonoBehaviour {
                 card.decoGOs.Add (tGO);
             }
 
+            // Add Pips
+            // For each of the pips in the definition
+            foreach (Decorator pip in card.def.pips)
+            {
+                // Instantiate a Sprite GameObject
+                tGO = Instantiate (prefabSprite) as GameObject;
+                // Set the parent to be the card GameObject
+                tGO.transform.parent = cgo.transform;
+                // Set the position to that specified in the XML
+                tGO.transform.localPosition = pip.loc;
+                // Flip it if necessary
+                if (pip.flip)
+                {
+                    tGO.transform.rotation = Quaternion.Euler (0, 0, 180);
+                }
+                // Scale it if necessary (only for the Ace)
+                if (pip.scale != 1)
+                {
+                    tGO.transform.localScale = Vector3.one * pip.scale;
+                }
+                // Give this GameObject a name
+                tGO.name = "pip";
+                // Get the SpriteRenderer component
+                tSR = tGO.GetComponent<SpriteRenderer> ();
+                // Set the Sprite to the proper suit
+                tSR.sprite = dictSuits [card.suit];
+                // Set sortingOrder so the pip is rendered above the Card_Front
+                tSR.sortingOrder = 1;
+                // Add this to the Card's list of pips
+                card.pipGOs.Add (tGO);
+            }
+
+            // Handle Face Cards
+            // If this has a face in card.def
+            if (card.def.face != "")
+            {
+                tGO = Instantiate (prefabSprite) as GameObject;
+                tSR = tGO.GetComponent<SpriteRenderer> ();
+                // Generate the right name and pass it to GetFace ()
+                tS = GetFace (card.def.face + card.suit);
+                // Assign this Sprite to tSR
+                tSR.sprite = tS;
+                // Set the sortingOrder
+                tSR.sortingOrder = 1;
+                tGO.transform.parent = card.transform;
+                tGO.transform.localPosition = Vector3.zero;
+                tGO.name = "face";
+            }
+
             // Add the card to the deck
             cards.Add (card);
         }
+    }
+
+    // Find the proper face card Sprite
+    public Sprite GetFace (string faceS)
+    {
+        foreach (Sprite tS in faceSprites)
+        {
+            // If this Sprite has the right name, return it
+            if (tS.name == faceS)
+            {
+                return tS;
+            }
+        }
+        return null;
     }
 
 }
