@@ -3,7 +3,22 @@ using System.Collections.Generic;
 
 public class Card : MonoBehaviour {
 
-	
+	// Suit of the card (C, D, H or S)
+    public string suit;
+    // Rank of the card (1 - 14)
+    public int rank;
+    // Color to tint pips
+    public Color color = Color.black;
+    // Name of color
+    public string colS = "Black";
+    // This List holds all of the Decorator GameObjects
+    public List<GameObject> decoGOs = new List<GameObject> ();
+    // This List holds all of the Pip GameObjects
+    public List<GameObject> pipGOs = new List<GameObject> ();
+    // The GameObject of the back of the card
+    public GameObject back;
+    // Parsed from DeckXML.xml
+    public CardDefinition def;
 
 }
 
