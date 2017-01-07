@@ -3,6 +3,25 @@ using System.Collections.Generic;
 
 public class Deck : MonoBehaviour {
 
+    // Suits
+    public Sprite suitClub;
+    public Sprite suitDiamond;
+    public Sprite suitHeart;
+    public Sprite suitSpade;
+
+    public Sprite [] faceSprites;
+    public Sprite [] rankSprites;
+
+    public Sprite cardBack;
+    public Sprite cardBackGold;
+    public Sprite cardFront;
+    public Sprite cardFrontGold;
+
+    // Prefabs
+    public GameObject prefabSprite;
+    public GameObject prefabCard;
+
+
 	public PT_XMLReader xmlr;
     public List<string> cardNames;
     public List<Card> cards;
