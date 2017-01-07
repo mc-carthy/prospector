@@ -343,4 +343,30 @@ public class Deck : MonoBehaviour {
         return null;
     }
 
+    // Shuffle the Cards in Deck.cards
+    static public void Shuffle (ref List<Card> oCards)
+    {
+        // Create a temporary List to hold the new shuffle order
+        List<Card> tCards;
+
+        // This will hold the index of the card to be moved
+        int ndx;
+        // Initialises the temporary List
+        tCards = new List<Card> ();
+        // Repeat as long as tehre are cards in the original List
+        while (oCards.Count > 0)
+        {
+            // Pick the index of a random card
+            ndx = Random.Range (0, oCards.Count);
+            // Add that card to the temporary List
+            tCards.Add (oCards[ndx]);
+            // And remove that card from the original List
+            oCards.RemoveAt (ndx);
+        }
+        // Replace the original List with the temporary List
+        oCards = tCards;
+        // Because oCards is a reference variable, the 
+        // original that was passed in is changed as well
+    }
+
 }

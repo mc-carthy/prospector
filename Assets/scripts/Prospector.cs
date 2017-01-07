@@ -17,6 +17,9 @@ public class Prospector : MonoBehaviour {
     {
         deck = GetComponent<Deck> ();
         deck.InitDeck (deckXML.text);
+        // The ref keyword passes a reference into deck.cards, which
+        // allows deck.cards to be modified by Deck.Shuffle ()
+        Deck.Shuffle (ref deck.cards);
     }
 
 }
