@@ -20,12 +20,79 @@ public class Card : MonoBehaviour {
     // Parsed from DeckXML.xml
     public CardDefinition def;
 
+    // List of the SpriteRenderer Components of this GameObject and its children
+    public SpriteRenderer [] spriteRenderers;
+
+    private void Start ()
+    {
+        // Ensures that the card starts properly depth sorted
+        SetSortOrder (0);
+    }
+
     public bool faceUp {
         get {
             return !back.activeSelf;
         }
         set {
             back.SetActive (!value);
+        }
+    }
+
+    // If spriteRenderers is not yet defined, this function defines it
+    public void PopulateSpriteRenderers ()
+    {
+        // If spriteRenderers is null or empty
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            // Get the SpriteRenderer Components of this GameObject and its children
+            spriteRenderers = GetComponentsInChildren<SpriteRenderer> ();
+        }
+    }
+
+    // Sets the sortingLayerName on all SpriteRenderer Components
+    public void SetSortingLayerName (string tSLN)
+    {
+        PopulateSpriteRenderers ();
+
+        foreach (SpriteRenderer tSR in spriteRenderers)
+        {
+            tSR.sortingLayerName = tSLN;
+        }
+    }
+
+    // Sets the sortingOrder of all SpriteRenderer Components
+    public void SetSortOrder (int sOrd)
+    {
+        PopulateSpriteRenderers ();
+
+        // The white background of the card is on bottom (sOrd)
+        // On top of that are all the pips, decorators, face etc. (sOrd + 1)
+        // The back is on top so that when visible, it covers the rest (sOrd + 2)
+
+        // Iterate through all the spriteRenderers in tSR
+        foreach (SpriteRenderer tSR in spriteRenderers)
+        {
+            if (tSR.gameObject == this.gameObject)
+            {
+                // If the gameObject is this.gameObject, it's the background
+                tSR.sortingOrder = sOrd;
+                // And continue to the next iteration of the loop
+                continue;
+            }
+
+            // Each of the children of this GameObject are named
+            // switch based on the name
+
+            switch (tSR.gameObject.name)
+            {
+                case ("back"):
+                    tSR.sortingOrder = sOrd + 2;
+                    break;
+                case ("face"):
+                default:
+                    tSR.sortingOrder = sOrd + 1;
+                    break;
+            }
         }
     }
 
