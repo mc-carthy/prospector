@@ -106,11 +106,11 @@ public class Layout : MonoBehaviour {
                     slotDefs.Add (tSD);
 
                     break;
-                case ("drawPile"):
+                case ("drawpile"):
                     tSD.stagger.x = float.Parse (slotsX [i].att ("xstagger"));
                     drawPile = tSD;
                     break;
-                case ("discardPile"):
+                case ("discardpile"):
                     discardPile = tSD;
                     break;
             }
