@@ -54,6 +54,21 @@ public class Prospector : MonoBehaviour {
         return cd;
     }
 
+    // Convert from the layoutID int to the CardProspector with that id
+    private CardProspector FindCardByLayoutID (int layoutID)
+    {
+        // Search through all cards in the tableau List<>
+        foreach (CardProspector tCP in tableau)
+        {
+            // If the card has the same ID, return it
+            if (tCP.layoutID == layoutID)
+            {
+                return tCP;
+            }
+        }
+        return null;
+    }
+
     // LayoutGame positions the initial tableau of cards
     private void LayoutGame ()
     {
@@ -90,6 +105,16 @@ public class Prospector : MonoBehaviour {
             cp.SetSortingLayerName (tSD.layerName);
 
             tableau.Add (cp);
+        }
+
+        // Set which cards are hiding others
+        foreach (CardProspector tCP in tableau)
+        {
+            foreach (int hid in tCP.SlotDef.hiddenBy)
+            {
+                cp = FindCardByLayoutID (hid);
+                tCP.hiddenBy.Add (cp);
+            }
         }
 
         // Set up the initial target card
@@ -150,6 +175,8 @@ public class Prospector : MonoBehaviour {
                 // It's a valid card, remove it from the tableau List<> and make it the target card
                 tableau.Remove (cd);
                 MoveToTarget (cd);
+                // Update the tableau card face ups
+                SetTableauFaces ();
                 break;
         }
     }
@@ -254,4 +281,23 @@ public class Prospector : MonoBehaviour {
 
     }
 
+    // This turns cards in the Mine face up or face down
+    private void SetTableauFaces ()
+    {
+        foreach (CardProspector cd in tableau)
+        {
+            // Assume the card will be face up
+            bool fup = true;
+            foreach (CardProspector cover in cd.hiddenBy)
+            {
+                // If either of the covering cards are in the tableau
+                if (cover.state == CardState.tableau)
+                {
+                    // Then this card is face down
+                    fup = false;
+                }
+            }
+            cd.faceUp = fup;
+        }
+    }
 }
