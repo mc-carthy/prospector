@@ -17,6 +17,11 @@ public class Prospector : MonoBehaviour {
     static public int SCORE_FROM_PREV_ROUND = 0;
     static public int HIGH_SCORE = 0;
 
+    public Vector3 fsPosMid = new Vector3 (0.5f, 0.9f, 0);
+    public Vector3 fsPosRun = new Vector3 (0.5f, 0.75f, 0);
+    public Vector3 fsPosMid2 = new Vector3 (0.5f, 0.5f, 0);
+    public Vector3 fsPosEnd = new Vector3 (1f, 0.65f, 0);
+
     public Deck deck;
     public TextAsset deckXML;
 
@@ -37,6 +42,7 @@ public class Prospector : MonoBehaviour {
     public int chain = 0;
     public int scoreRun = 0;
     public int score = 0;
+    public FloatingScore fsRun;
 
     private void Awake ()
     {
@@ -54,6 +60,7 @@ public class Prospector : MonoBehaviour {
 
     private void Start ()
     {
+        Scoreboard.S.score = score;
         deck = GetComponent<Deck> ();
         deck.InitDeck (deckXML.text);
         // The ref keyword passes a reference into deck.cards, which
@@ -378,6 +385,7 @@ public class Prospector : MonoBehaviour {
     // ScoreManager handles all of the scoring
     private void ScoreManager (ScoreEvent sEvt)
     {
+        List<Vector3> fsPts;
         switch (sEvt)
         {
             // Same things need to happen whether it's a draw, a win or a loss
@@ -394,6 +402,21 @@ public class Prospector : MonoBehaviour {
                 score += scoreRun;
                 // Reset scoreRun
                 scoreRun = 0;
+                // Add fsRun to the _Scoreboard score
+                if (fsRun != null)
+                {
+                    // Create points for the Bézier curve
+                    fsPts = new List<Vector3> ();
+                    fsPts.Add (fsPosRun);
+                    fsPts.Add (fsPosMid2);
+                    fsPts.Add (fsPosEnd);
+                    fsRun.reportFinishTo = Scoreboard.S.gameObject;
+                    fsRun.Init (fsPts, 0, 1);
+                    // Also adjust the font size
+                    fsRun.fontSizes = new List<float> (new float[] { 28, 36, 4 });
+                    // Clear fsRun so it's created again
+                    fsRun = null;
+                }
                 break;
             // Remove a mine card
             case ScoreEvent.mine:
@@ -401,6 +424,31 @@ public class Prospector : MonoBehaviour {
                 chain++;
                 // Add score for this card to run
                 scoreRun += chain;
+                // Create a FloatingScore for this score
+                FloatingScore fs;
+                // Move it from the mousePosition to fsPosRun
+                Vector3 p0 = Input.mousePosition;
+                p0.x /= Screen.width;
+                p0.y /= Screen.height;
+                
+                fsPts = new List<Vector3> ();
+                fsPts.Add (p0);
+                fsPts.Add (fsPosMid);
+                fsPts.Add (fsPosRun);
+
+                fs = Scoreboard.S.CreateFloatingScore (chain, fsPts);
+                fs.fontSizes = new List<float> (new float[] {4, 50, 28 });
+
+                if (fsRun == null)
+                {
+                    fsRun = fs;
+                    fsRun.reportFinishTo = null;
+                }
+                else
+                {
+                    fs.reportFinishTo = fsRun.gameObject;
+                }
+
                 break;
         }
 
