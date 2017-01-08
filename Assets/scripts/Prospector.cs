@@ -17,6 +17,9 @@ public class Prospector : MonoBehaviour {
     static public int SCORE_FROM_PREV_ROUND = 0;
     static public int HIGH_SCORE = 0;
 
+    // The delay between rounds
+    public float reloadDelay = 1f;
+
     public Vector3 fsPosMid = new Vector3 (0.5f, 0.9f, 0);
     public Vector3 fsPosRun = new Vector3 (0.5f, 0.75f, 0);
     public Vector3 fsPosMid2 = new Vector3 (0.5f, 0.5f, 0);
@@ -44,6 +47,9 @@ public class Prospector : MonoBehaviour {
     public int score = 0;
     public FloatingScore fsRun;
 
+    public GUIText GTGameOver;
+    public GUIText GTRoundResult;
+
     private void Awake ()
     {
         S = this;
@@ -56,6 +62,32 @@ public class Prospector : MonoBehaviour {
         score += SCORE_FROM_PREV_ROUND;
         // Reset the SCORE_FROM_PREV_ROUND
         SCORE_FROM_PREV_ROUND = 0;
+
+        // Set up the GUITexts that show at the end of the round
+        // Get the GUIText components
+        GameObject go = GameObject.Find ("GameOver");
+        if (go != null)
+        {
+            GTGameOver = go.GetComponent<GUIText> ();
+        }
+
+        go = GameObject.Find ("RoundResult");
+        if (go != null)
+        {
+            GTRoundResult = go.GetComponent<GUIText> ();
+        }
+
+        ShowResultGTs (false);
+
+        go = GameObject.Find ("HighScore");
+        string hScore = "High Score: " + Utils.AddCommasToNumber (HIGH_SCORE);
+        go.GetComponent<GUIText> ().text = hScore;
+    }
+
+    private void ShowResultGTs (bool show)
+    {
+        GTGameOver.gameObject.SetActive (show);
+        GTRoundResult.gameObject.SetActive (show);
     }
 
     private void Start ()
@@ -378,7 +410,13 @@ public class Prospector : MonoBehaviour {
         {
             ScoreManager (ScoreEvent.gameLoss);
         }
-        // Reload the scene, resetting the game
+        // Reload the scene in reloadDelay seconds
+        // This will give the score a moment to travel
+        Invoke ("ReloadLevel", reloadDelay);
+    }
+
+    private void ReloadLevel ()
+    {
         SceneManager.LoadScene (SceneManager.GetActiveScene ().name, LoadSceneMode.Single);
     }
 
@@ -456,23 +494,31 @@ public class Prospector : MonoBehaviour {
         switch (sEvt)
         {
             case (ScoreEvent.gameWin):
+                GTGameOver.text = "Round Over";
                 // If it's a win, add the score to the next round
                 // static fields are NOT reset by SceneManagement.LoadLevel ()
                 Prospector.SCORE_FROM_PREV_ROUND = score;
                 print ("You won this round! Round score: " + score.ToString ());
+                GTRoundResult.text = "You won this round!\nRound Score: " + score.ToString ();
+                ShowResultGTs (true);
                 break;
             case (ScoreEvent.gameLoss):
+            GTGameOver.text = "Game Over";
                 // If it's a loss, check against the high score
                 if (Prospector.HIGH_SCORE <= score)
                 {
                     print ("You got the high score! High score: " + score.ToString ());
+                    string sRR = "You got the high score!\nHigh Score: " + score.ToString ();
+                    GTRoundResult.text = sRR;
                     Prospector.HIGH_SCORE = score;
                     PlayerPrefs.SetInt ("ProspectorHighScore", score);
                 }
                 else
                 {
                     print ("Your final score for this game was: " + score.ToString ());
+                    GTRoundResult.text = "Your final score was: " + score.ToString ();
                 }
+                ShowResultGTs (true);
                 break;
             default:
                 print ("Score: " + score.ToString() + " scoreRun: " + scoreRun + " chain: " + chain);
